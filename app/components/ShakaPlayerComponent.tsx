@@ -1,17 +1,51 @@
 'use client';
-/// <reference path="../types/global.d.ts" />
-import { useEffect, useRef } from 'react';
-import 'shaka-player/dist/shaka-player.compiled.js';
 
-export default function ShakaPlayerComponent({ manifestUri }) {
-  const videoRef = useRef(null);
+import { useEffect, useRef } from 'react';
+import shaka from 'shaka-player';
+
+export default function ShakaPlayerComponent({ manifestUri }: { manifestUri: string }) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
-    if (videoRef.current && window.shaka) {
-      const player = new window.shaka.Player(videoRef.current);
-      player.load(manifestUri).catch((err) => console.error('Shaka error', err));
+    // Ensure the player initializes after DOM is ready
+    if (!videoRef.current) return;
+
+    // Install polyfills
+    shaka.polyfill.installAll();
+
+    // Check if the browser supports Shaka Player
+    if (!shaka.Player.isBrowserSupported()) {
+      console.error('Browser not supported by Shaka Player');
+      return;
     }
+
+    const player = new shaka.Player(videoRef.current);
+
+    player.addEventListener('error', onErrorEvent);
+
+    // Load the manifest URI
+    player.load(manifestUri).catch(onError);
+
+    function onErrorEvent(event: any) {
+      console.error('Shaka ErrorEvent:', event);
+    }
+
+    function onError(error: any) {
+      console.error('Shaka Error:', error);
+    }
+
+    // Cleanup on component unmount
+    return () => {
+      player.destroy().catch((e) => console.warn('Failed to destroy Shaka Player:', e));
+    };
   }, [manifestUri]);
 
-  return <video ref={videoRef} controls autoPlay style={{ width: '100%', height: 480 }} />;
+  return (
+    <video
+      ref={videoRef}
+      style={{ width: '100%', height: 'auto', backgroundColor: '#000' }}
+      controls
+      autoPlay
+    />
+  );
 }
