@@ -85,19 +85,25 @@ export default function Home() {
         </>
       )}
 
-      {selectedUrl && (
-        <div style={{ marginTop: 30 }}>
-          <label>
-            <input type="checkbox" checked={useShaka} onChange={() => setUseShaka(!useShaka)} />
-            Use Shaka (for DRM / .mpd)
-          </label>
-          {useShaka ? (
-            <ShakaPlayerComponent manifestUri={selectedUrl} />
-          ) : (
-            <ArtPlayerComponent url={selectedUrl} />
-          )}
-        </div>
-      )}
+    {selectedUrl && typeof selectedUrl === 'string' && selectedUrl.startsWith('http') && (
+  <div style={{ marginTop: 30 }}>
+    <label>
+      <input
+        type="checkbox"
+        checked={useShaka}
+        onChange={() => setUseShaka(!useShaka)}
+        style={{ marginRight: 8 }}
+      />
+      Use Shaka (for DRM / .mpd)
+    </label>
+
+    {useShaka ? (
+      <ShakaPlayerComponent manifestUri={selectedUrl} key={selectedUrl} />
+    ) : (
+      <ArtPlayerComponent url={selectedUrl} key={selectedUrl} />
+    )}
+  </div>
+)}
     </main>
   );
 }
