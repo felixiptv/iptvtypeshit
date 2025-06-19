@@ -1,3 +1,7 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
+import Hls from 'hls.js';
 import Artplayer from 'artplayer';
 
 export default function ArtPlayerComponent({ url }: { url: string }) {
@@ -17,11 +21,7 @@ export default function ArtPlayerComponent({ url }: { url: string }) {
       customType: {
         m3u8: (video, url) => {
           if (Hls.isSupported()) {
-            const hls = new Hls({
-              xhrSetup: function (xhr) {
-                xhr.withCredentials = false;
-              },
-            });
+            const hls = new Hls();
             hls.loadSource(url);
             hls.attachMedia(video);
           } else {
