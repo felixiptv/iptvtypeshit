@@ -1,40 +1,41 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import Hls from 'hls.js';
 import Artplayer from 'artplayer';
 
 export default function ArtPlayerComponent({ url }: { url: string }) {
-  const artRef = useRef(null);
+  const artRef = useRef<HTMLDivElement | null>(null);
+  const playerRef = useRef<any>(null);
 
   useEffect(() => {
-    const art = new Artplayer({
+    if (!artRef.current) return;
+
+    // Destroy previous instance if it exists
+    if (playerRef.current) {
+      playerRef.current.destroy();
+    }
+
+    // Initialize new ArtPlayer instance
+    playerRef.current = new Artplayer({
       container: artRef.current,
-      url,
-      type: 'm3u8',
+      url: url,
       autoplay: true,
-      isLive: true,
-      muted: true,
-      setting: true,
+      theme: '#23ade5',
       fullscreen: true,
-      playsInline: true,
-      customType: {
-        m3u8: (video, url) => {
-          if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(url);
-            hls.attachMedia(video);
-          } else {
-            video.src = url;
-          }
-        },
-      },
+      setting: true,
+      playbackRate: true,
+      volume: 1,
+      isLive: true,
+      muted: false,
     });
 
     return () => {
-      art.destroy();
+      if (playerRef.current) {
+        playerRef.current.destroy();
+        playerRef.current = null;
+      }
     };
   }, [url]);
 
-  return <div ref={artRef} style={{ width: '100%', height: '60vh' }} />;
+  return <div ref={artRef} style={{ width: '100%', height: '500px' }} />;
 }
