@@ -6,11 +6,12 @@
     "build": "next build",
     "start": "next start"
   },
-  "dependencies": {
-    "artplayer": "^4.6.3",
-    "next": "14.1.0",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "shaka-player": "^4.3.5"
+ "dependencies": {
+  "artplayer": "^5.2.3",
+  "next": "14.1.0",
+  "react": "18.2.0",
+  "react-dom": "18.2.0",
+  "shaka-player": "^4.3.5"
+
   }
 }
