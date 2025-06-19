@@ -7,13 +7,10 @@ export default function ShakaPlayerComponent({ manifestUri }: { manifestUri: str
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
-    // Ensure the player initializes after DOM is ready
     if (!videoRef.current) return;
 
-    // Install polyfills
     shaka.polyfill.installAll();
 
-    // Check if the browser supports Shaka Player
     if (!shaka.Player.isBrowserSupported()) {
       console.error('Browser not supported by Shaka Player');
       return;
@@ -21,20 +18,34 @@ export default function ShakaPlayerComponent({ manifestUri }: { manifestUri: str
 
     const player = new shaka.Player(videoRef.current);
 
-    player.addEventListener('error', onErrorEvent);
+    // DRM configuration (optional)
+    player.configure({
+      drm: {
+        servers: {
+          'com.widevine.alpha': 'https://license-server-url/widevine'
+          // Replace with your actual license URL
+        }
+      }
+    });
 
-    // Load the manifest URI
-    player.load(manifestUri).catch(onError);
-
-    function onErrorEvent(event: any) {
+    // Event listeners for debugging/stats
+    player.addEventListener('error', (event) => {
       console.error('Shaka ErrorEvent:', event);
-    }
+    });
 
-    function onError(error: any) {
-      console.error('Shaka Error:', error);
-    }
+    player.addEventListener('buffering', (event) => {
+      console.log('Buffering:', event.buffering);
+    });
 
-    // Cleanup on component unmount
+    player.addEventListener('adaptation', () => {
+      const tracks = player.getVariantTracks();
+      console.log('Adaptation occurred. Available tracks:', tracks);
+    });
+
+    player.load(manifestUri).catch((error) => {
+      console.error('Shaka Load Error:', error);
+    });
+
     return () => {
       player.destroy().catch((e) => console.warn('Failed to destroy Shaka Player:', e));
     };
