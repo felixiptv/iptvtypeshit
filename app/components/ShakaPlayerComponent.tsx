@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import shaka from 'shaka-player';
+import * as shaka from 'shaka-player';
 
 export default function ShakaPlayerComponent({ manifestUri }: { manifestUri: string }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
